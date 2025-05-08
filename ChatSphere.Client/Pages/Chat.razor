@@ -1,0 +1,81 @@
+﻿@page "/chat"
+@inject NavigationManager Navigation
+
+<div>
+    <h3>Chat Room</h3>
+    <input @bind="username" placeholder="Your name" />
+    <input @bind="roomId" placeholder="Room ID" />
+    <textarea @bind="message" placeholder="Message"></textarea>
+    <button @onclick="SendMessage">Send</button>
+    <button @onclick="JoinRoom">Join Room</button>
+    <button @onclick="LeaveRoom">Leave Room</button>
+
+    <ul>
+        @foreach (var chatMessage in chatMessages)
+        {
+            <li>@chatMessage</li>
+        }
+    </ul>
+</div>
+
+@code {
+    private HubConnection? _hubConnection;
+    private string username = "";
+    private string roomId = "";
+    private string message = "";
+    private List<string> chatMessages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:7081/chat")
+            .Build();
+
+        _hubConnection.On<string, string>("ReceiveMessage", (senderUsername, message) =>
+        {
+            chatMessages.Add($"{senderUsername}: {message}");
+            InvokeAsync(StateHasChanged);
+        });
+
+        try
+        {
+            await _hubConnection.StartAsync();
+            chatMessages.Add("Connected to SignalR Hub.");
+        }
+        catch (Exception ex)
+        {
+            chatMessages.Add($"Failed to connect to SignalR Hub: {ex.Message}");
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.SendAsync("SendMessage", roomId, username, message);
+        }
+    }
+
+    private async Task JoinRoom()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.SendAsync("JoinRoom", roomId);
+            chatMessages.Add($"Joined room {roomId}");
+        }
+    }
+
+    private async Task LeaveRoom()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.SendAsync("LeaveRoom", roomId);
+            chatMessages.Add($"Left room {roomId}");
+        }
+    }
+
+    public void Dispose()
+    {
+        _hubConnection?.DisposeAsync();
+    }
+}
