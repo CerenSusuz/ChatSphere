@@ -16,4 +16,8 @@
     <Folder Include="Layout\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ChatSphere.Domain\ChatSphere.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

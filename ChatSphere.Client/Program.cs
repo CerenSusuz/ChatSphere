@@ -1,13 +1,22 @@
 ﻿using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ChatSphere.Client;
+using ChatSphere.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var backendBaseAddress = "http://localhost:7081";
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5080") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5080") });
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ChatService>(provider =>
+{
+    var authService = provider.GetRequiredService<AuthService>();
+    var token = authService.GetTokenAsync().Result;
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(backendBaseAddress) });
+    return new ChatService("http://localhost:5080/chathub", token);
+});
+
 
 await builder.Build().RunAsync();

@@ -49,7 +49,7 @@ builder.Services.AddAuthentication(options =>
             var path = context.HttpContext.Request.Path;
 
             if (!string.IsNullOrEmpty(accessToken) &&
-                path.StartsWithSegments("/chat"))
+                path.StartsWithSegments("/chathub"))
             {
                 context.Token = accessToken;
             }
@@ -69,6 +69,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<ChatHub>("/chat");
+app.MapHub<ChatHub>("/chathub");
 
 app.Run();
