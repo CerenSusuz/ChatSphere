@@ -6,7 +6,11 @@ namespace ChatSphere.Infrastructure.Database;
 public class ChatSphereDbContext : DbContext
 {
     public DbSet<User> Users { get; set; }
+
     public DbSet<ChatMessage> ChatMessages { get; set; }
+
+    public DbSet<Room> Rooms { get; set; }
+
 
     public ChatSphereDbContext(DbContextOptions<ChatSphereDbContext> options)
     : base(options) { }

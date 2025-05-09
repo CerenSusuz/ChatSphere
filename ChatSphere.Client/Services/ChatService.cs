@@ -24,7 +24,22 @@ public class ChatService : IChatService
     public event Action? OnMessageReceived;
 
     public void SetToken(string token) => _token = token;
+    private readonly Dictionary<string, List<string>> _rooms = new()
+    {
+        { "123", new List<string> { "User1", "User2", "User3" } },
+        { "456", new List<string> { "UserA", "UserB" } },
+        { "789", new List<string> { "UserX", "UserY", "UserZ" } }
+    };
 
+    public Task<List<string>> GetUsersInRoomAsync(string roomId)
+    {
+        if (_rooms.ContainsKey(roomId))
+        {
+            return Task.FromResult(_rooms[roomId]);
+        }
+
+        return Task.FromResult(new List<string>());
+    }
     public async Task ConnectAsync()
     {
         if (_connection == null)

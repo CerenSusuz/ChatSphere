@@ -2,6 +2,8 @@
 @inject IChatService ChatService
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
+
 
 @if (ChatService == null || !ChatService.IsConnected)
 {
@@ -11,29 +13,41 @@ else
 {
     <div class="chat-container">
         <h3>Chat Room</h3>
-        <div class="room-selection">
-            <input @bind="roomId" placeholder="Enter Room ID..." />
-            <button @onclick="JoinRoom">Join Room</button>
-            @if (!string.IsNullOrEmpty(currentRoom))
-            {
-                <p>✅ Joined Room: @currentRoom</p>
-            }
-        </div>
 
-        <div class="chat-messages">
-            @foreach (var chatMessage in ChatService.ChatMessages)
+        <!-- Available Rooms -->
+        <div class="room-list">
+            <h4>Available Rooms</h4>
+            @foreach (var room in availableRooms)
             {
-                <div class="message @(chatMessage.IsMine ? "mine" : "theirs")">
-                    <span class="sender">@chatMessage.SenderUsername:</span>
-                    <p>@chatMessage.Content</p>
+                <div class="room-item" @onclick="() => SelectRoom(room.Id)">
+                    @room.Name (ID: @room.Id)
                 </div>
             }
         </div>
 
-        <div class="chat-input">
-            <input @bind="message" placeholder="Type a message..." />
-            <button @onclick="SendMessage">Send</button>
+        <!-- Join Room -->
+        <div class="room-selection">
+            <input @bind="roomId" placeholder="Enter Room ID..." />
+            <button @onclick="JoinRoom" class="join-room-btn">Join Room</button>
         </div>
+
+        <!-- Users in Room -->
+        @if (!string.IsNullOrEmpty(currentRoom))
+        {
+            <div class="user-list">
+                <h4>Users in @currentRoom</h4>
+                @foreach (var user in usersInRoom)
+                {
+                    <div class="user-item">@user</div>
+                }
+            </div>
+
+            <!-- Message Input -->
+            <div class="chat-input">
+                <input @bind="message" placeholder="Type a message..." />
+                <button @onclick="SendMessage" class="send-btn">Send</button>
+            </div>
+        }
     </div>
 }
 
@@ -41,11 +55,17 @@ else
     private string message = "";
     private string roomId = "";
     private string currentRoom = "";
+    private List<string> usersInRoom = new();
+    private List<(string Name, string Id)> availableRooms = new()
+    {
+        ("General Chat", "123"),
+        ("Tech Talk", "456"),
+        ("Gaming Zone", "789")
+    };
 
     protected override async Task OnInitializedAsync()
     {
         var token = await AuthService.GetTokenAsync();
-
         if (!string.IsNullOrEmpty(token))
         {
             ChatService.SetToken(token);
@@ -58,13 +78,19 @@ else
         }
     }
 
+    private void SelectRoom(string id)
+    {
+        roomId = id;
+    }
+
     private async Task JoinRoom()
     {
-        if (!string.IsNullOrEmpty(roomId))
+        if (!string.IsNullOrEmpty(roomId) && availableRooms.Any(r => r.Id == roomId))
         {
             await ChatService.JoinRoomAsync(roomId);
             currentRoom = roomId;
-            roomId = "";
+            ShowToastr($"✅ Joined Room: {roomId}");
+            usersInRoom = await ChatService.GetUsersInRoomAsync(currentRoom);
         }
     }
 
@@ -75,5 +101,10 @@ else
             await ChatService.SendMessageAsync(currentRoom, "Username", message);
             message = "";
         }
+    }
+
+    private void ShowToastr(string message)
+    {
+        JS.InvokeVoidAsync("showToastr", message);
     }
 }

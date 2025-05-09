@@ -19,4 +19,6 @@ public interface IChatService
     Task LeaveRoomAsync(string roomId);
 
     void SetToken(string token);
+
+    Task<List<string>> GetUsersInRoomAsync(string roomId);
 }

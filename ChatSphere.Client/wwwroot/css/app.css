@@ -9,6 +9,7 @@
     overflow: hidden;
 }
 
+/* Hero section (background image, title, and buttons) */
 .hero-image {
     position: relative;
     width: 100%;
@@ -48,15 +49,19 @@
     gap: 20px;
 }
 
-.login-button {
+.login-button,
+.register-button {
     padding: 12px 24px;
     font-size: 1.2rem;
-    background-color: #ff7f50; /* Orange */
     border: none;
-    color: white;
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s;
+}
+
+.login-button {
+    background-color: #ff7f50; /* Orange */
+    color: white;
 }
 
     .login-button:hover {
@@ -64,14 +69,8 @@
     }
 
 .register-button {
-    padding: 12px 24px;
-    font-size: 1.2rem;
     background-color: #1e90ff; /* Blue */
-    border: none;
     color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
     .register-button:hover {
@@ -93,6 +92,7 @@
         margin-bottom: 10px;
     }
 }
+
 /* Form Layout */
 .form-container {
     display: flex;
@@ -148,7 +148,7 @@
     width: 100%;
     padding: 12px;
     font-size: 1.2rem;
-    background-color: #ff7f50;
+    background-color: #ff7f50; /* Orange */
     border: none;
     color: white;
     border-radius: 8px;
@@ -176,4 +176,392 @@
 
     .form-link:hover {
         text-decoration: underline;
+    }
+
+/* Base container */
+.chat-container {
+    max-width: 1000px;
+    width: 90%;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* User info section at the top */
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-details {
+    display: flex;
+    align-items: center;
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.username {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    background-color: #ff7f32; /* Orange */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+    .logout-btn:hover {
+        background-color: #e76a2a;
+    }
+
+/* Room selection */
+.room-selection {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+    .room-selection input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 70%;
+    }
+
+    .room-selection button {
+        padding: 10px 20px;
+        border: none;
+        background-color: #ff7f32; /* Orange */
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .room-selection button:hover {
+            background-color: #e76a2a;
+        }
+
+/* Chat messages */
+.chat-messages {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message {
+    margin-bottom: 10px;
+}
+
+    .message .sender {
+        font-weight: bold;
+        color: #0066cc; /* Blue */
+    }
+
+    .message p {
+        margin: 5px 0;
+        padding: 5px;
+        border-radius: 4px;
+        background-color: #f4f4f4;
+    }
+
+    /* Message types */
+    .message.mine {
+        background-color: #ffdbb2;
+        text-align: right;
+    }
+
+    .message.theirs {
+        background-color: #cce4ff;
+        text-align: left;
+    }
+
+/* Chat input area */
+.chat-input {
+    display: flex;
+    justify-content: space-between;
+}
+
+    .chat-input input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 80%;
+    }
+
+    .chat-input button {
+        padding: 10px 20px;
+        background-color: #0066cc; /* Blue */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .chat-input button:hover {
+            background-color: #0055a0;
+        }
+
+/* Joined room message */
+.joined-room {
+    font-style: italic;
+    color: #28a745; /* Green */
+    text-align: center;
+}
+
+/* Placeholder for input fields */
+::placeholder {
+    color: #aaa;
+}
+/* Room list styling */
+.room-list {
+    margin-bottom: 20px;
+}
+
+    .room-list h4 {
+        color: #ff7f32; /* Orange */
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .room-list ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .room-list li {
+        padding: 10px;
+        background-color: #f4f4f4;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .room-list li:hover {
+            background-color: #e0e0e0;
+        }
+/* Chat container styling */
+.chat-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.chat-room {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message {
+    margin-bottom: 10px;
+}
+
+    .message .sender {
+        font-weight: bold;
+        color: #0066cc; /* Blue */
+    }
+
+    .message p {
+        margin: 5px 0;
+        padding: 5px;
+        border-radius: 4px;
+        background-color: #f4f4f4;
+    }
+
+    .message.mine {
+        background-color: #ffdbb2;
+        text-align: right;
+    }
+
+    .message.theirs {
+        background-color: #cce4ff;
+        text-align: left;
+    }
+
+.chat-input {
+    display: flex;
+    justify-content: space-between;
+}
+
+    .chat-input input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 80%;
+    }
+
+    .chat-input button {
+        padding: 10px 20px;
+        background-color: #0066cc; /* Blue */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .chat-input button:hover {
+            background-color: #0055a0;
+        }
+.chat-container {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.room-list, .user-list {
+    margin-bottom: 20px;
+}
+
+.room-item, .user-item {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f2f2f2;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    .room-item:hover, .user-item:hover {
+        background-color: #ddd;
+    }
+
+.room-selection {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+    .room-selection input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+.join-room-btn, .send-btn {
+    padding: 10px 20px;
+    background-color: #ff7f32;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    .join-room-btn:hover, .send-btn:hover {
+        background-color: #e76a2a;
+    }
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+    .chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+/* User List Section */
+.user-list {
+    width: 30%;
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+/* Join Room button */
+button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+button:enabled {
+    background-color: #ff7f32; /* Orange */
+    cursor: pointer;
+}
+
+    button:enabled:hover {
+        background-color: #e76a2a;
+    }
+
+    .user-list h4 {
+        font-size: 1.5rem;
+        color: #ff7f32; /* Orange */
+    }
+
+    .user-list ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .user-list li {
+        padding: 10px;
+        background-color: #f4f4f4;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+
+/* Room Selection Section */
+.room-selection input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 70%;
+}
+
+.room-selection button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff7f32; /* Orange */
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    .room-selection button:hover {
+        background-color: #e76a2a;
     }
