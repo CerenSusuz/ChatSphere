@@ -1,7 +1,6 @@
 ﻿using ChatSphere.Domain.Entities;
 using ChatSphere.Infrastructure.Database;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatSphere.Backend.Hubs;
 
@@ -9,24 +8,25 @@ public class ChatHub : Hub
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public ChatHub(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
-
-    public override Task OnConnectedAsync()
+    public ChatHub(IServiceProvider serviceProvider)
     {
-        var userId = Context.User?.FindFirst("id")?.Value;
-
-        if (userId == null)
-        {
-            Context.Abort();
-        }
-        else
-        {
-            Console.WriteLine($"User {userId} connected.");
-        }
-
-        return base.OnConnectedAsync();
+        _serviceProvider = serviceProvider;
     }
 
+    public override async Task OnConnectedAsync()
+    {
+        var userId = Context.User?.FindFirst("id")?.Value;
+        if (userId == null)
+        {
+            Console.WriteLine("Unauthorized connection attempt.");
+            Context.Abort();
+
+            return;
+        }
+
+        Console.WriteLine($"User {userId} connected.");
+        await base.OnConnectedAsync();
+    }
 
     public async Task SendMessage(string roomId, string username, string message)
     {

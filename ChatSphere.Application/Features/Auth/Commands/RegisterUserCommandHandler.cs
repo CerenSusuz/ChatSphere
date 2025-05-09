@@ -1,36 +1,42 @@
-﻿using ChatSphere.Domain.Entities;
+﻿using ChatSphere.Application.Features.Auth.Commands;
+using ChatSphere.Domain.Entities;
 using ChatSphere.Infrastructure.Database;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace ChatSphere.Application.Features.Auth.Commands;
-
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand>
+namespace ChatSphere.Application.Features.Auth.Commands
 {
-    private readonly ChatSphereDbContext _context;
-
-    public RegisterUserCommandHandler(ChatSphereDbContext context) => _context = context;
-
-    public async Task<Unit> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand>
     {
-        var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken: cancellationToken);
-        
-        if (existingUser != null)
-            throw new Exception("The mail address is already in used!");
+        private readonly ChatSphereDbContext _context;
 
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        public RegisterUserCommandHandler(ChatSphereDbContext context) => _context = context;
 
-        var newUser = new User
+        public async Task<Unit> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            Id = Guid.NewGuid(),
-            Username = request.Username,
-            Email = request.Email,
-            PasswordHash = hashedPassword,
-        };
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
-        await _context.Users.AddAsync(newUser, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+            if (existingUser != null)
+                throw new Exception("The mail address is already in use!");
 
-        return Unit.Value;
+            var passwordHasher = new PasswordHasher<User>();
+            var newUser = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = request.Username,
+                Email = request.Email,
+                PasswordHash = passwordHasher.HashPassword(null, request.Password),
+            };
+
+            await _context.Users.AddAsync(newUser, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Unit.Value;
+        }
+
     }
 }

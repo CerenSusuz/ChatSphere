@@ -8,15 +8,12 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5080") });
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5080") });
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<ChatService>(provider =>
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IChatService>(provider =>
 {
-    var authService = provider.GetRequiredService<AuthService>();
-    var token = authService.GetTokenAsync().Result;
-
-    return new ChatService("http://localhost:5080/chathub", token);
+    return new ChatService("http://localhost:5080/chathub");
 });
-
 
 await builder.Build().RunAsync();

@@ -1,0 +1,79 @@
+﻿@page "/chathub"
+@inject IChatService ChatService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+@if (ChatService == null || !ChatService.IsConnected)
+{
+    <p>Loading chat...</p>
+}
+else
+{
+    <div class="chat-container">
+        <h3>Chat Room</h3>
+        <div class="room-selection">
+            <input @bind="roomId" placeholder="Enter Room ID..." />
+            <button @onclick="JoinRoom">Join Room</button>
+            @if (!string.IsNullOrEmpty(currentRoom))
+            {
+                <p>✅ Joined Room: @currentRoom</p>
+            }
+        </div>
+
+        <div class="chat-messages">
+            @foreach (var chatMessage in ChatService.ChatMessages)
+            {
+                <div class="message @(chatMessage.IsMine ? "mine" : "theirs")">
+                    <span class="sender">@chatMessage.SenderUsername:</span>
+                    <p>@chatMessage.Content</p>
+                </div>
+            }
+        </div>
+
+        <div class="chat-input">
+            <input @bind="message" placeholder="Type a message..." />
+            <button @onclick="SendMessage">Send</button>
+        </div>
+    </div>
+}
+
+@code {
+    private string message = "";
+    private string roomId = "";
+    private string currentRoom = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await AuthService.GetTokenAsync();
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            ChatService.SetToken(token);
+            await ChatService.ConnectAsync();
+        }
+        else
+        {
+            Console.WriteLine("⚠️ Token is missing.");
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task JoinRoom()
+    {
+        if (!string.IsNullOrEmpty(roomId))
+        {
+            await ChatService.JoinRoomAsync(roomId);
+            currentRoom = roomId;
+            roomId = "";
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(message) && !string.IsNullOrEmpty(currentRoom))
+        {
+            await ChatService.SendMessageAsync(currentRoom, "Username", message);
+            message = "";
+        }
+    }
+}

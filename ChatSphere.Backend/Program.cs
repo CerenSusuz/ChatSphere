@@ -1,8 +1,10 @@
 ﻿using ChatSphere.Application.Features.Auth.Commands;
 using ChatSphere.Backend.Hubs;
+using ChatSphere.Domain.Entities;
 using ChatSphere.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -12,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ChatSphereDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

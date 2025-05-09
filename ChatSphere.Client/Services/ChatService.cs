@@ -1,52 +1,90 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using ChatSphere.Domain.DTOs;
+using ChatSphere.Domain.Entities;
 
 namespace ChatSphere.Client.Services;
 
-public class ChatService : IAsyncDisposable
+public class ChatService : IChatService
 {
-    private readonly HubConnection _hubConnection;
-    public event Action<ChatMessageDto>? OnMessageReceived;
+    private readonly string _hubUrl;
+    private string _token;
+    private HubConnection? _connection;
 
-    public List<ChatMessageDto> ChatMessages { get; private set; } = new();
-
-    public ChatService(string hubUrl, string? token)
+    public ChatService(string hubUrl)
     {
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(hubUrl, options =>
-            {
-                options.AccessTokenProvider = () => Task.FromResult(token);
-            })
-            .Build();
-
-        _hubConnection.On<string, string>("ReceiveMessage", (sender, content) =>
-        {
-            var isMine = sender == "MyUsername";
-            var message = new ChatMessageDto(sender, content, isMine);
-            ChatMessages.Add(message);
-            OnMessageReceived?.Invoke(message);
-        });
+        _hubUrl = hubUrl;
+        ChatMessages = new List<ChatMessage>();
     }
+
+    public List<ChatMessage> ChatMessages { get; private set; }
+
+    public bool IsConnected => _connection?.State == HubConnectionState.Connected;
+
+    IEnumerable<ChatMessage> IChatService.ChatMessages => ChatMessages;
+
+    public event Action? OnMessageReceived;
+
+    public void SetToken(string token) => _token = token;
 
     public async Task ConnectAsync()
     {
-        await _hubConnection.StartAsync();
+        if (_connection == null)
+        {
+            _connection = new HubConnectionBuilder()
+                .WithUrl(_hubUrl, options =>
+                {
+                    options.AccessTokenProvider = () => Task.FromResult(_token);
+                })
+                .Build();
+
+            _connection.On<ChatMessage>("ReceiveMessage", message =>
+            {
+                ChatMessages.Add(message);
+                OnMessageReceived?.Invoke();
+            });
+
+            await _connection.StartAsync();
+        }
     }
 
-    public async Task SendMessageAsync(string roomId, string username, string message)
+    public async Task JoinRoomAsync(string roomId)
     {
-        await _hubConnection.SendAsync("SendMessage", roomId, username, message);
-        ChatMessages.Add(new ChatMessageDto(username, message, true));
+        if (_connection != null)
+        {
+            await _connection.SendAsync("JoinRoom", roomId);
+        }
+    }
+
+    public async Task SendMessageAsync(string roomId, string sender, string message)
+    {
+        if (_connection != null)
+        {
+            await _connection.SendAsync("SendMessage", roomId, sender, message);
+            ChatMessages.Add(new ChatMessage
+            {
+                SenderUsername = sender,
+                Content = message,
+                RoomId = roomId,
+                Timestamp = DateTime.UtcNow,
+            });
+            OnMessageReceived?.Invoke();
+        }
     }
 
     public async Task LeaveRoomAsync(string roomId)
     {
-        await _hubConnection.SendAsync("LeaveRoom", roomId);
-        ChatMessages.Clear();
+        if (_connection != null)
+        {
+            await _connection.SendAsync("LeaveRoom", roomId);
+            ChatMessages.Clear();
+        }
     }
 
     public async ValueTask DisposeAsync()
     {
-        await _hubConnection.DisposeAsync();
+        if (_connection != null)
+        {
+            await _connection.DisposeAsync();
+            _connection = null;
+        }
     }
 }
