@@ -12,22 +12,20 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database
 builder.Services.AddDbContext<ChatSphereDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// MediatR
 builder.Services.AddMediatR(typeof(RegisterUserCommandHandler).Assembly);
 builder.Services.AddMediatR(typeof(GetRoomsQuery).Assembly);
 
-// Controllers and SignalR
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
-// CORS
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ClientPolicy", policy =>
@@ -39,15 +37,14 @@ builder.Services.AddCors(options =>
     });
 });
 
-// JWT Authentication
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Secret"])),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
+                builder.Configuration["Jwt:Secret"] ?? throw new Exception("JWT Secret not found."))),
             ValidateIssuer = false,
             ValidateAudience = false,
         };
@@ -71,12 +68,14 @@ builder.Services
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseRouting();
 app.UseCors("ClientPolicy");
-
 app.UseAuthentication();
 app.UseAuthorization();
 
