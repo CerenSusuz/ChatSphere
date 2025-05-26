@@ -1,4 +1,5 @@
 ﻿using ChatSphere.Application.Features.Auth.Commands;
+using ChatSphere.Application.Features.Rooms.Queries;
 using ChatSphere.Backend.Hubs;
 using ChatSphere.Domain.Entities;
 using ChatSphere.Infrastructure.Database;
@@ -11,64 +12,71 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Database
 builder.Services.AddDbContext<ChatSphereDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Identity
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
+// MediatR
 builder.Services.AddMediatR(typeof(RegisterUserCommandHandler).Assembly);
+builder.Services.AddMediatR(typeof(GetRoomsQuery).Assembly);
+
+// Controllers and SignalR
+builder.Services.AddControllers();
+builder.Services.AddSignalR();
+
+// CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("ClientPolicy", policy =>
     {
-        policy.AllowAnyHeader()
+        policy.WithOrigins("http://localhost:3456")
+              .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials()
-              .SetIsOriginAllowed(origin => true);
+              .AllowCredentials();
     });
 });
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+
+// JWT Authentication
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            var accessToken = context.Request.Query["access_token"];
-            var path = context.HttpContext.Request.Path;
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Secret"])),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
 
-            if (!string.IsNullOrEmpty(accessToken) &&
-                path.StartsWithSegments("/chathub"))
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
             {
-                context.Token = accessToken;
-            }
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
 
-            return Task.CompletedTask;
-        }
-    };
-});
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseCors();
+
 app.UseRouting();
+app.UseCors("ClientPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

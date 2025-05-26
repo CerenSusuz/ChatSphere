@@ -4,6 +4,7 @@ using ChatSphere.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChatSphere.Infrastructure.Migrations
 {
     [DbContext(typeof(ChatSphereDbContext))]
-    partial class ChatSphereDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250526093718_AddRoomEntity")]
+    partial class AddRoomEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,21 +53,6 @@ namespace ChatSphere.Infrastructure.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "RoomId");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("ChatUserRooms");
                 });
 
             modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
@@ -123,35 +111,9 @@ namespace ChatSphere.Infrastructure.Migrations
                     b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
-                {
-                    b.HasOne("ChatSphere.Domain.Entities.Room", "Room")
-                        .WithMany("Users")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ChatSphere.Domain.Entities.User", "User")
-                        .WithMany("Rooms")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
                 {
                     b.Navigation("Messages");
-
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("ChatSphere.Domain.Entities.User", b =>
-                {
-                    b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618
         }

@@ -27,21 +27,21 @@
 </div>
 
 @code {
-    private string Email { get; set; } = "";
-    private string Password { get; set; } = "";
-    private string ErrorMessage { get; set; } = "";
+private string Email { get; set; } = "";
+private string Password { get; set; } = "";
+private string ErrorMessage { get; set; } = "";
 
-    private async Task HandleLogin()
+private async Task HandleLogin()
+{
+    var success = await AuthService.LoginAsync(Email, Password);
+
+    if (success)
     {
-        var success = await AuthService.LoginAsync(Email, Password);
-
-        if (success)
-        {
-            Navigation.NavigateTo("/chathub");
-        }
-        else
-        {
-            ErrorMessage = "Invalid email or password.";
-        }
+        Navigation.NavigateTo("/chathub");
     }
+    else
+    {
+        ErrorMessage = "Invalid email or password.";
+    }
+}
 }

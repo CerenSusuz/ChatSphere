@@ -9,4 +9,7 @@ public class User
     public string Email { get; set; }
 
     public string PasswordHash { get; set; }
+
+    public ICollection<ChatUserRoom> Rooms { get; set; } = new List<ChatUserRoom>();
+
 }

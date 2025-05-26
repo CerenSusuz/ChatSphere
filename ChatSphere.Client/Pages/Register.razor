@@ -35,30 +35,30 @@
 </div>
 
 @code {
-    private string Username { get; set; } = "";
-    private string Email { get; set; } = "";
-    private string Password { get; set; } = "";
-    private string ConfirmPassword { get; set; } = "";
-    private string ErrorMessage { get; set; } = "";
+private string Username { get; set; } = "";
+private string Email { get; set; } = "";
+private string Password { get; set; } = "";
+private string ConfirmPassword { get; set; } = "";
+private string ErrorMessage { get; set; } = "";
 
-    private async Task HandleRegister()
+private async Task HandleRegister()
+{
+    if (Password != ConfirmPassword)
     {
-        if (Password != ConfirmPassword)
-        {
-            ErrorMessage = "Passwords do not match.";
-            return;
-        }
-
-        var success = await AuthService.RegisterAsync(username: Username, email: Email, password: Password);
-
-
-        if (success)
-        {
-            Navigation.NavigateTo("/login");
-        }
-        else
-        {
-            ErrorMessage = "Registration failed. Please try again.";
-        }
+        ErrorMessage = "Passwords do not match.";
+        return;
     }
+
+    var success = await AuthService.RegisterAsync(username: Username, email: Email, password: Password);
+
+
+    if (success)
+    {
+        Navigation.NavigateTo("/login");
+    }
+    else
+    {
+        ErrorMessage = "Registration failed. Please try again.";
+    }
+}
 }

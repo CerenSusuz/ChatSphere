@@ -1,24 +1,24 @@
-﻿using ChatSphere.Domain.Entities;
+﻿using ChatSphere.Domain.DTOs;
+using ChatSphere.Domain.Entities;
 
-namespace ChatSphere.Client.Services;
-
-public interface IChatService
+namespace ChatSphere.Client.Services
 {
-    Task ConnectAsync();
+    public interface IChatService : IAsyncDisposable
+    {
+        List<ChatMessage> ChatMessages { get; }
+        List<string> UsersInCurrentRoom { get; }
 
-    Task JoinRoomAsync(string roomId);
+        bool IsConnected { get; }
 
-    Task SendMessageAsync(string roomId, string sender, string message);
+        event Action OnMessageReceived;
+        event Action OnUsersUpdated;
 
-    IEnumerable<ChatMessage> ChatMessages { get; }
+        void SetToken(string token);
+        Task ConnectAsync();
+        Task JoinRoomAsync(Guid roomId);
+        Task LeaveRoomAsync(Guid roomId);
+        Task SendMessageAsync(Guid roomId, string sender, string message);
+        Task<List<RoomDto>> GetAvailableRoomsAsync();
 
-    bool IsConnected { get; }
-
-    event Action OnMessageReceived;
-
-    Task LeaveRoomAsync(string roomId);
-
-    void SetToken(string token);
-
-    Task<List<string>> GetUsersInRoomAsync(string roomId);
+    }
 }

@@ -1,54 +1,45 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using System.Net.Http.Json;
+using ChatSphere.Domain.DTOs;
 using ChatSphere.Domain.Entities;
 
-namespace ChatSphere.Client.Services;
-
-public class ChatService : IChatService
+namespace ChatSphere.Client.Services
 {
-    private readonly string _hubUrl;
-    private string _token;
-    private HubConnection? _connection;
-
-    public ChatService(string hubUrl)
+    public class ChatService : IChatService, IAsyncDisposable
     {
-        _hubUrl = hubUrl;
-        ChatMessages = new List<ChatMessage>();
-    }
+        private readonly string _hubUrl;
+        private string _token = string.Empty;
+        private HubConnection? _connection;
+        private readonly HttpClient _httpClient;
 
-    public List<ChatMessage> ChatMessages { get; private set; }
-
-    public bool IsConnected => _connection?.State == HubConnectionState.Connected;
-
-    IEnumerable<ChatMessage> IChatService.ChatMessages => ChatMessages;
-
-    public event Action? OnMessageReceived;
-
-    public void SetToken(string token) => _token = token;
-    private readonly Dictionary<string, List<string>> _rooms = new()
-    {
-        { "123", new List<string> { "User1", "User2", "User3" } },
-        { "456", new List<string> { "UserA", "UserB" } },
-        { "789", new List<string> { "UserX", "UserY", "UserZ" } }
-    };
-
-    public Task<List<string>> GetUsersInRoomAsync(string roomId)
-    {
-        if (_rooms.ContainsKey(roomId))
+        public ChatService(string hubUrl, HttpClient httpClient)
         {
-            return Task.FromResult(_rooms[roomId]);
+            _hubUrl = hubUrl;
+            _httpClient = httpClient;
+            ChatMessages = new List<ChatMessage>();
+            UsersInCurrentRoom = new List<string>();
         }
 
-        return Task.FromResult(new List<string>());
-    }
-    public async Task ConnectAsync()
-    {
-        if (_connection == null)
+        public List<ChatMessage> ChatMessages { get; private set; }
+        public List<string> UsersInCurrentRoom { get; private set; }
+        public bool IsConnected => _connection?.State == HubConnectionState.Connected;
+
+        public event Action? OnMessageReceived;
+        public event Action? OnUsersUpdated;
+
+        public void SetToken(string token) => _token = token;
+
+        public async Task ConnectAsync()
         {
+            if (_connection != null && _connection.State == HubConnectionState.Connected)
+                return;
+
             _connection = new HubConnectionBuilder()
                 .WithUrl(_hubUrl, options =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult(_token);
                 })
+                .WithAutomaticReconnect()
                 .Build();
 
             _connection.On<ChatMessage>("ReceiveMessage", message =>
@@ -57,49 +48,64 @@ public class ChatService : IChatService
                 OnMessageReceived?.Invoke();
             });
 
+            _connection.On<List<string>>("UserListUpdated", users =>
+            {
+                UsersInCurrentRoom = users;
+                OnUsersUpdated?.Invoke();
+            });
+
             await _connection.StartAsync();
         }
-    }
 
-    public async Task JoinRoomAsync(string roomId)
-    {
-        if (_connection != null)
+        public async Task JoinRoomAsync(Guid roomId)
         {
-            await _connection.SendAsync("JoinRoom", roomId);
-        }
-    }
-
-    public async Task SendMessageAsync(string roomId, string sender, string message)
-    {
-        if (_connection != null)
-        {
-            await _connection.SendAsync("SendMessage", roomId, sender, message);
-            ChatMessages.Add(new ChatMessage
+            if (_connection != null && _connection.State == HubConnectionState.Connected)
             {
-                SenderUsername = sender,
-                Content = message,
-                RoomId = roomId,
-                Timestamp = DateTime.UtcNow,
-            });
-            OnMessageReceived?.Invoke();
+                await _connection.SendAsync("JoinRoom", roomId.ToString());
+            }
         }
-    }
 
-    public async Task LeaveRoomAsync(string roomId)
-    {
-        if (_connection != null)
+        public async Task LeaveRoomAsync(Guid roomId)
         {
-            await _connection.SendAsync("LeaveRoom", roomId);
-            ChatMessages.Clear();
+            if (_connection != null && _connection.State == HubConnectionState.Connected)
+            {
+                await _connection.SendAsync("LeaveRoom", roomId.ToString());
+                ChatMessages.Clear();
+                UsersInCurrentRoom.Clear();
+            }
         }
-    }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (_connection != null)
+        public async Task SendMessageAsync(Guid roomId, string sender, string message)
         {
-            await _connection.DisposeAsync();
-            _connection = null;
+            if (_connection != null && _connection.State == HubConnectionState.Connected)
+            {
+                await _connection.SendAsync("SendMessage", roomId, sender, message);
+                ChatMessages.Add(new ChatMessage
+                {
+                    SenderUsername = sender,
+                    Content = message,
+                    RoomId = roomId,
+                    Timestamp = DateTime.UtcNow
+                });
+                OnMessageReceived?.Invoke();
+            }
         }
+
+        public async Task<List<RoomDto>> GetAvailableRoomsAsync()
+        {
+            var response = await _httpClient.GetFromJsonAsync<List<RoomDto>>("api/rooms");
+            return response ?? new List<RoomDto>();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_connection != null)
+            {
+                await _connection.StopAsync();
+                await _connection.DisposeAsync();
+                _connection = null;
+            }
+        }
+
     }
 }

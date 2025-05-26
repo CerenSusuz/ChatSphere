@@ -1,453 +1,109 @@
-﻿/* Main container */
+﻿:root {
+    --orange: #ff7f50;
+    --orange-dark: #e96c41;
+    --blue: #1e90ff;
+    --blue-dark: #187bcd;
+    --gray-light: #f5f5f5;
+    --gray-dark: #333;
+    --radius: 10px;
+}
+
+/* General Reset */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--gray-light);
+    margin: 0;
+    padding: 0;
+}
+
+/* Container */
 .main-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    width: 100%;
-    overflow: hidden;
+    padding: 40px;
 }
 
-/* Hero section (background image, title, and buttons) */
-.hero-image {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-    color: white;
-    padding: 20px;
-}
-
-.title {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #ff7f50; /* Orange */
+/* Titles */
+h2, h3, h4 {
+    color: var(--orange);
     margin-bottom: 20px;
 }
 
-.buttons {
-    display: flex;
-    gap: 20px;
-}
-
-.login-button,
-.register-button {
-    padding: 12px 24px;
-    font-size: 1.2rem;
+/* Button Base */
+button {
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.login-button {
-    background-color: #ff7f50; /* Orange */
+    border-radius: var(--radius);
     color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
 }
 
-    .login-button:hover {
-        background-color: #e96c41;
+.login-button, .form-button, .join-room-btn, .send-btn {
+    background-color: var(--orange);
+}
+
+    .login-button:hover, .form-button:hover, .join-room-btn:hover, .send-btn:hover {
+        background-color: var(--orange-dark);
     }
 
 .register-button {
-    background-color: #1e90ff; /* Blue */
-    color: white;
+    background-color: var(--blue);
 }
 
     .register-button:hover {
-        background-color: #187bcd;
+        background-color: var(--blue-dark);
     }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .title {
-        font-size: 2rem;
-    }
-
-    .buttons {
-        flex-direction: column;
-    }
-
-    .login-button, .register-button {
-        width: 100%;
-        margin-bottom: 10px;
-    }
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    margin-bottom: 10px;
 }
 
-/* Form Layout */
+    input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.2);
+        outline: none;
+    }
+
+/* Form Containers */
 .form-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f9f9f9;
 }
 
 .form-card {
-    background-color: white;
+    background: white;
     padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 400px;
     text-align: center;
 }
 
-.form-title {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #ff7f50; /* Orange */
-    margin-bottom: 5px;
-}
-
-.form-subtitle {
-    color: #1e90ff; /* Blue */
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.form-input {
-    width: 100%;
-    padding: 12px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    outline: none;
-    transition: border 0.3s;
-}
-
-    .form-input:focus {
-        border-color: #1e90ff;
-        box-shadow: 0 0 5px rgba(30, 144, 255, 0.5);
-    }
-
-.form-button {
-    width: 100%;
-    padding: 12px;
-    font-size: 1.2rem;
-    background-color: #ff7f50; /* Orange */
-    border: none;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-    .form-button:hover {
-        background-color: #e96c41;
-    }
-
 .error-message {
     color: red;
-    margin-top: 10px;
+    font-size: 0.9rem;
 }
 
-.form-footer {
-    margin-top: 15px;
-}
-
-.form-link {
-    color: #1e90ff;
-    text-decoration: none;
-}
-
-    .form-link:hover {
-        text-decoration: underline;
-    }
-
-/* Base container */
+/* Chat Page Layout */
 .chat-container {
+    background: white;
+    padding: 30px;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     max-width: 1000px;
-    width: 90%;
-    padding: 40px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-/* User info section at the top */
-.user-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.user-details {
-    display: flex;
-    align-items: center;
-}
-
-.user-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.username {
-    font-size: 18px;
-    color: #333;
-    font-weight: bold;
-}
-
-.logout-btn {
-    padding: 8px 16px;
-    background-color: #ff7f32; /* Orange */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-    .logout-btn:hover {
-        background-color: #e76a2a;
-    }
-
-/* Room selection */
-.room-selection {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-    .room-selection input {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        width: 70%;
-    }
-
-    .room-selection button {
-        padding: 10px 20px;
-        border: none;
-        background-color: #ff7f32; /* Orange */
-        color: white;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-        .room-selection button:hover {
-            background-color: #e76a2a;
-        }
-
-/* Chat messages */
-.chat-messages {
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.message {
-    margin-bottom: 10px;
-}
-
-    .message .sender {
-        font-weight: bold;
-        color: #0066cc; /* Blue */
-    }
-
-    .message p {
-        margin: 5px 0;
-        padding: 5px;
-        border-radius: 4px;
-        background-color: #f4f4f4;
-    }
-
-    /* Message types */
-    .message.mine {
-        background-color: #ffdbb2;
-        text-align: right;
-    }
-
-    .message.theirs {
-        background-color: #cce4ff;
-        text-align: left;
-    }
-
-/* Chat input area */
-.chat-input {
-    display: flex;
-    justify-content: space-between;
-}
-
-    .chat-input input {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        width: 80%;
-    }
-
-    .chat-input button {
-        padding: 10px 20px;
-        background-color: #0066cc; /* Blue */
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-        .chat-input button:hover {
-            background-color: #0055a0;
-        }
-
-/* Joined room message */
-.joined-room {
-    font-style: italic;
-    color: #28a745; /* Green */
-    text-align: center;
-}
-
-/* Placeholder for input fields */
-::placeholder {
-    color: #aaa;
-}
-/* Room list styling */
-.room-list {
-    margin-bottom: 20px;
-}
-
-    .room-list h4 {
-        color: #ff7f32; /* Orange */
-        font-size: 1.5rem;
-        margin-bottom: 10px;
-    }
-
-    .room-list ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    .room-list li {
-        padding: 10px;
-        background-color: #f4f4f4;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-        .room-list li:hover {
-            background-color: #e0e0e0;
-        }
-/* Chat container styling */
-.chat-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.chat-room {
-    width: 65%;
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-messages {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.message {
-    margin-bottom: 10px;
-}
-
-    .message .sender {
-        font-weight: bold;
-        color: #0066cc; /* Blue */
-    }
-
-    .message p {
-        margin: 5px 0;
-        padding: 5px;
-        border-radius: 4px;
-        background-color: #f4f4f4;
-    }
-
-    .message.mine {
-        background-color: #ffdbb2;
-        text-align: right;
-    }
-
-    .message.theirs {
-        background-color: #cce4ff;
-        text-align: left;
-    }
-
-.chat-input {
-    display: flex;
-    justify-content: space-between;
-}
-
-    .chat-input input {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        width: 80%;
-    }
-
-    .chat-input button {
-        padding: 10px 20px;
-        background-color: #0066cc; /* Blue */
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-        .chat-input button:hover {
-            background-color: #0055a0;
-        }
-.chat-container {
-    max-width: 700px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-h3 {
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
+    margin: 40px auto;
 }
 
 .room-list, .user-list {
@@ -455,113 +111,58 @@ h3 {
 }
 
 .room-item, .user-item {
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #f2f2f2;
-    border-radius: 4px;
+    padding: 10px 15px;
+    background: var(--gray-light);
+    margin-bottom: 10px;
+    border-radius: var(--radius);
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
     .room-item:hover, .user-item:hover {
-        background-color: #ddd;
+        background: #e0e0e0;
     }
 
-.room-selection {
-    display: flex;
-    gap: 10px;
+/* Chat Messages */
+.chat-messages {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #fafafa;
+    padding: 15px;
+    border-radius: var(--radius);
     margin-bottom: 20px;
 }
 
-    .room-selection input {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-.join-room-btn, .send-btn {
-    padding: 10px 20px;
-    background-color: #ff7f32;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.message {
+    margin-bottom: 15px;
 }
 
-    .join-room-btn:hover, .send-btn:hover {
-        background-color: #e76a2a;
+    .message .sender {
+        font-weight: bold;
+        color: var(--blue-dark);
     }
 
+    .message.mine {
+        text-align: right;
+        background: #fff5e6;
+        padding: 10px;
+        border-radius: var(--radius);
+    }
+
+    .message.theirs {
+        text-align: left;
+        background: #e6f2ff;
+        padding: 10px;
+        border-radius: var(--radius);
+    }
+
+/* Chat Input */
 .chat-input {
     display: flex;
     gap: 10px;
-    margin-top: 20px;
+    align-items: center;
 }
 
     .chat-input input {
         flex: 1;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-/* User List Section */
-.user-list {
-    width: 30%;
-    background-color: #f5f5f5;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-/* Join Room button */
-button:disabled {
-    background-color: #ddd;
-    cursor: not-allowed;
-}
-
-button:enabled {
-    background-color: #ff7f32; /* Orange */
-    cursor: pointer;
-}
-
-    button:enabled:hover {
-        background-color: #e76a2a;
-    }
-
-    .user-list h4 {
-        font-size: 1.5rem;
-        color: #ff7f32; /* Orange */
-    }
-
-    .user-list ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    .user-list li {
-        padding: 10px;
-        background-color: #f4f4f4;
-        margin-bottom: 10px;
-        border-radius: 4px;
-    }
-
-/* Room Selection Section */
-.room-selection input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 70%;
-}
-
-.room-selection button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #ff7f32; /* Orange */
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-    .room-selection button:hover {
-        background-color: #e76a2a;
     }

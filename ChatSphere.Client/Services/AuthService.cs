@@ -24,7 +24,7 @@ public class AuthService : IAuthService
                 Password = password
             };
 
-            var response = await _httpClient.PostAsJsonAsync("http://localhost:5080/api/auth/login", loginData);
+            var response = await _httpClient.PostAsJsonAsync("http://localhost:1234/api/auth/login", loginData);
 
             if (response.IsSuccessStatusCode)
             {

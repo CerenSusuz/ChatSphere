@@ -8,13 +8,15 @@ public class ChatMessage
 
     public string SenderUsername { get; set; }
 
-    public string RoomId { get; set; }
+    public Room Room { get; set; }
+
+    public Guid RoomId { get; set; }
 
     public DateTime Timestamp { get; set; }
 
     public bool IsMine { get; set; }
 
-    public ChatMessage(string senderUsername, string content, string roomId)
+    public ChatMessage(string senderUsername, string content, Guid roomId)
     {
         Id = Guid.NewGuid();
         SenderUsername = senderUsername;

@@ -16,4 +16,8 @@
     <ProjectReference Include="..\ChatSphere.Domain\ChatSphere.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+
 </Project>
