@@ -45,24 +45,26 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, string>
         return token;
     }
 
-
     private string GenerateJwtToken(User user)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"]);
+        var claims = new List<Claim>
+    {
+        new Claim("id", user.Id.ToString()),
+        new Claim("email", user.Email),
+        new Claim("username", user.Username),
+        new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
+        new Claim("isAdmin", user.IsAdmin.ToString())
+    };
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new List<Claim>
-        {
-            new Claim("id", user.Id.ToString()),
-            new Claim("email", user.Email),
-            new Claim(ClaimTypes.Name, user.Username)
-        }),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddHours(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"])), SecurityAlgorithms.HmacSha256Signature)
         };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return tokenHandler.WriteToken(token);
+        var token = new JwtSecurityTokenHandler().CreateToken(tokenDescriptor);
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 }

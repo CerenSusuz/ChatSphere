@@ -10,6 +10,12 @@ public class User
 
     public string PasswordHash { get; set; }
 
+    public bool IsBanned { get; set; } = false;
+
+    public string Role { get; set; } = "User";
+
+    public bool IsAdmin { get; set; }
+
     public ICollection<ChatUserRoom> Rooms { get; set; } = new List<ChatUserRoom>();
 
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChatSphere.Infrastructure.Migrations;
 
 [DbContext(typeof(ChatSphereDbContext))]
-[Migration("20250526093718_AddRoomEntity")]
-partial class AddRoomEntity
+[Migration("20250526154023_adminnstuff")]
+partial class adminnstuff
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,6 +55,21 @@ partial class AddRoomEntity
                 b.ToTable("ChatMessages");
             });
 
+        modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
+            {
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<Guid>("RoomId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.HasKey("UserId", "RoomId");
+
+                b.HasIndex("RoomId");
+
+                b.ToTable("ChatUserRooms");
+            });
+
         modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
             {
                 b.Property<Guid>("Id")
@@ -64,6 +79,9 @@ partial class AddRoomEntity
                 b.Property<string>("Description")
                     .IsRequired()
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<bool>("IsActive")
+                    .HasColumnType("bit");
 
                 b.Property<string>("Name")
                     .IsRequired()
@@ -84,7 +102,14 @@ partial class AddRoomEntity
                     .IsRequired()
                     .HasColumnType("nvarchar(450)");
 
+                b.Property<bool>("IsBanned")
+                    .HasColumnType("bit");
+
                 b.Property<string>("PasswordHash")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("Role")
                     .IsRequired()
                     .HasColumnType("nvarchar(max)");
 
@@ -111,9 +136,35 @@ partial class AddRoomEntity
                 b.Navigation("Room");
             });
 
+        modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
+            {
+                b.HasOne("ChatSphere.Domain.Entities.Room", "Room")
+                    .WithMany("Users")
+                    .HasForeignKey("RoomId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.HasOne("ChatSphere.Domain.Entities.User", "User")
+                    .WithMany("Rooms")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Room");
+
+                b.Navigation("User");
+            });
+
         modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
             {
                 b.Navigation("Messages");
+
+                b.Navigation("Users");
+            });
+
+        modelBuilder.Entity("ChatSphere.Domain.Entities.User", b =>
+            {
+                b.Navigation("Rooms");
             });
 #pragma warning restore 612, 618
     }

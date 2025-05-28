@@ -8,6 +8,8 @@ public class Room
 
     public string Description { get; set; }
 
+    public bool IsActive { get; set; } = true;
+
     public ICollection<ChatUserRoom> Users { get; set; } = new List<ChatUserRoom>();
 
     public ICollection<ChatMessage> Messages { get; set; }

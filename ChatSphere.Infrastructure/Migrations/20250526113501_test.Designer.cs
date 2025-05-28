@@ -9,154 +9,153 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace ChatSphere.Infrastructure.Migrations
+namespace ChatSphere.Infrastructure.Migrations;
+
+[DbContext(typeof(ChatSphereDbContext))]
+[Migration("20250526113501_test")]
+partial class test
 {
-    [DbContext(typeof(ChatSphereDbContext))]
-    [Migration("20250526113501_test")]
-    partial class test
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasAnnotation("ProductVersion", "9.0.4")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.ChatMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+        modelBuilder.Entity("ChatSphere.Domain.Entities.ChatMessage", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Content")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsMine")
-                        .HasColumnType("bit");
+                b.Property<bool>("IsMine")
+                    .HasColumnType("bit");
 
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<Guid>("RoomId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("SenderUsername")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("SenderUsername")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("Timestamp")
+                    .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RoomId");
+                b.HasIndex("RoomId");
 
-                    b.ToTable("ChatMessages");
-                });
+                b.ToTable("ChatMessages");
+            });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+        modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
+            {
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<Guid>("RoomId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId", "RoomId");
+                b.HasKey("UserId", "RoomId");
 
-                    b.HasIndex("RoomId");
+                b.HasIndex("RoomId");
 
-                    b.ToTable("ChatUserRooms");
-                });
+                b.ToTable("ChatUserRooms");
+            });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+        modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Rooms");
-                });
+                b.ToTable("Rooms");
+            });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+        modelBuilder.Entity("ChatSphere.Domain.Entities.User", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("PasswordHash")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Username")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
+                b.HasIndex("Email")
+                    .IsUnique();
 
-                    b.ToTable("Users");
-                });
+                b.ToTable("Users");
+            });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.ChatMessage", b =>
-                {
-                    b.HasOne("ChatSphere.Domain.Entities.Room", "Room")
-                        .WithMany("Messages")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("ChatSphere.Domain.Entities.ChatMessage", b =>
+            {
+                b.HasOne("ChatSphere.Domain.Entities.Room", "Room")
+                    .WithMany("Messages")
+                    .HasForeignKey("RoomId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Room");
-                });
+                b.Navigation("Room");
+            });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
-                {
-                    b.HasOne("ChatSphere.Domain.Entities.Room", "Room")
-                        .WithMany("Users")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("ChatSphere.Domain.Entities.ChatUserRoom", b =>
+            {
+                b.HasOne("ChatSphere.Domain.Entities.Room", "Room")
+                    .WithMany("Users")
+                    .HasForeignKey("RoomId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("ChatSphere.Domain.Entities.User", "User")
-                        .WithMany("Rooms")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("ChatSphere.Domain.Entities.User", "User")
+                    .WithMany("Rooms")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Room");
+                b.Navigation("Room");
 
-                    b.Navigation("User");
-                });
+                b.Navigation("User");
+            });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
-                {
-                    b.Navigation("Messages");
+        modelBuilder.Entity("ChatSphere.Domain.Entities.Room", b =>
+            {
+                b.Navigation("Messages");
 
-                    b.Navigation("Users");
-                });
+                b.Navigation("Users");
+            });
 
-            modelBuilder.Entity("ChatSphere.Domain.Entities.User", b =>
-                {
-                    b.Navigation("Rooms");
-                });
+        modelBuilder.Entity("ChatSphere.Domain.Entities.User", b =>
+            {
+                b.Navigation("Rooms");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

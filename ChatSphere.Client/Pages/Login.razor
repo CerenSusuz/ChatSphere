@@ -4,44 +4,38 @@
 
 <PageTitle>Login - ChatSphere</PageTitle>
 
-<div class="form-container">
-    <div class="form-card">
-        <h2 class="form-title">Welcome Back!</h2>
-        <p class="form-subtitle">Login to your account</p>
+<div class="form-wrapper">
+    <div class="form-box">
+        <h2 class="form-title">Login to ChatSphere</h2>
+        <p class="form-subtitle">Access your account</p>
 
-        <div class="form-group">
-            <input @bind="Email" placeholder="Email" class="form-input" />
-        </div>
-
-        <div class="form-group">
-            <input @bind="Password" type="password" placeholder="Password" class="form-input" />
-        </div>
-
+        <input @bind="Email" placeholder="Email" />
+        <input @bind="Password" type="password" placeholder="Password" />
         <button @onclick="HandleLogin" class="form-button">Login</button>
+
         <p class="error-message">@ErrorMessage</p>
 
-        <div class="form-footer">
-            <p>Don't have an account? <a href="/register" class="form-link">Register here</a></p>
+        <div class="link">
+            Don't have an account? <a href="/register">Register here</a>
         </div>
     </div>
 </div>
 
 @code {
-private string Email { get; set; } = "";
-private string Password { get; set; } = "";
-private string ErrorMessage { get; set; } = "";
+    private string Email { get; set; } = "";
+    private string Password { get; set; } = "";
+    private string ErrorMessage { get; set; } = "";
 
-private async Task HandleLogin()
-{
-    var success = await AuthService.LoginAsync(Email, Password);
-
-    if (success)
+    private async Task HandleLogin()
     {
-        Navigation.NavigateTo("/chathub");
+        var token = await AuthService.LoginAsync(Email, Password);
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            ErrorMessage = "Invalid email or password.";
+        }
     }
-    else
-    {
-        ErrorMessage = "Invalid email or password.";
-    }
-}
 }

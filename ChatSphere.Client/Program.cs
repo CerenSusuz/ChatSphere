@@ -2,15 +2,26 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ChatSphere.Client;
 using ChatSphere.Client.Services;
-using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient
+builder.Services.AddScoped<AuthorizationMessageHandler>();
+
+builder.Services.AddScoped(sp =>
 {
-    BaseAddress = new Uri("http://localhost:1234")
+    var js = sp.GetRequiredService<IJSRuntime>();
+    var handler = new AuthorizationMessageHandler(js)
+    {
+        InnerHandler = new HttpClientHandler()
+    };
+
+    return new HttpClient(handler)
+    {
+        BaseAddress = new Uri("http://localhost:1234")
+    };
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -18,7 +29,6 @@ builder.Services.AddScoped<RoomService>();
 
 builder.Services.AddScoped<IChatService>(sp =>
 {
-    var navigation = sp.GetRequiredService<NavigationManager>();
     var httpClient = sp.GetRequiredService<HttpClient>();
     var hubUrl = "http://localhost:1234/chathub";
     return new ChatService(hubUrl, httpClient);

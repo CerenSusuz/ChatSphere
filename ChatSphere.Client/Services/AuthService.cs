@@ -14,7 +14,7 @@ public class AuthService : IAuthService
         _js = js;
     }
 
-    public async Task<bool> LoginAsync(string email, string password)
+    public async Task<string?> LoginAsync(string email, string password)
     {
         try
         {
@@ -30,19 +30,16 @@ public class AuthService : IAuthService
             {
                 var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
 
-                if (result != null && result.ContainsKey("token"))
+                if (result != null && result.TryGetValue("token", out var token))
                 {
-                    string token = result["token"];
                     await _js.InvokeVoidAsync("localStorage.setItem", "jwtToken", token);
-
-                    return true;
+                    return token;
                 }
             }
             else
             {
-                Console.WriteLine($"Login failed: {response.StatusCode}");
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error content: {errorContent}");
+                Console.WriteLine($"Login failed: {response.StatusCode}, {errorContent}");
             }
         }
         catch (Exception ex)
@@ -50,8 +47,9 @@ public class AuthService : IAuthService
             Console.WriteLine($"Exception during login: {ex.Message}");
         }
 
-        return false;
+        return null;
     }
+
 
     public async Task<bool> RegisterAsync(string email, string password, string username)
     {

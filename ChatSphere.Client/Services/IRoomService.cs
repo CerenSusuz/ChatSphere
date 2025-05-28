@@ -1,9 +1,8 @@
 ﻿using ChatSphere.Domain.DTOs;
 
-namespace ChatSphere.Client.Services
+namespace ChatSphere.Client.Services;
+
+public interface IRoomService
 {
-    public interface IRoomService
-    {
-        Task<List<RoomDto>> GetRoomsAsync();
-    }
+    Task<List<RoomDto>> GetRoomsAsync();
 }

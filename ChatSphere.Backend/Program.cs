@@ -1,5 +1,5 @@
-﻿using ChatSphere.Application.Features.Auth.Commands;
-using ChatSphere.Application.Features.Rooms.Queries;
+﻿using ChatSphere.Application.Features.Admin.Rooms.Queries;
+using ChatSphere.Application.Features.Auth.Commands;
 using ChatSphere.Backend.Hubs;
 using ChatSphere.Domain.Entities;
 using ChatSphere.Infrastructure.Database;
