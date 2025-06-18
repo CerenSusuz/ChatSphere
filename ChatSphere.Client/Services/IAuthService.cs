@@ -1,4 +1,6 @@
-﻿namespace ChatSphere.Client.Services;
+﻿using ChatSphere.Domain.DTOs;
+
+namespace ChatSphere.Client.Services;
 
 public interface IAuthService
 {
@@ -9,4 +11,6 @@ public interface IAuthService
     Task<string?> GetTokenAsync();
 
     Task LogoutAsync();
+
+    JwtUserInfo? ParseToken(string token);
 }

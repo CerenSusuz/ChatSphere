@@ -1,164 +1,116 @@
 ﻿@page "/admin"
+@using ChatSphere.Client.Shared
 @using ChatSphere.Domain.DTOs
-@using System.IdentityModel.Tokens.Jwt
-@using System.Security.Claims
 @using System.Net.Http.Headers
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 @inject HttpClient Http
+@inject IJSRuntime JS
 
 <div class="admin-container">
     @if (!isAdmin)
-    {
-        <p>You are not authorized to view this page.</p>
-    }
-    else
-    {
-        <div>
-            <h2 class="admin-title">Admin Panel</h2>
+{
+    <p>You are not authorized to view this page.</p>
+}
+else
+{
+    <div class="theme-button-container">
+            <ThemeToggle />
+        </div>
 
-            <h4 class="section-title">Rooms</h4>
-            @if (rooms == null)
-            {
-                <p>Loading rooms...</p>
-            }
-            else
-            {
+    <div class="admin-header">
+            <h2>Admin Panel</h2>
+            <span class="admin-user">👤 @username</span>
+        </div>
 
-                @if (editingRoom != null)
+    <div class="admin-grid">
+            <div class="admin-section">
+                <h3>Rooms</h3>
+
+                <div class="form-group">
+                    <input @bind="newRoomName" placeholder="Room Name" />
+                    <input @bind="newRoomDescription" placeholder="Description" />
+                    <button @onclick="CreateRoom">Add Room</button>
+                </div>
+
+                <div class="admin-table">
+                    @foreach (var room in rooms)
                 {
-                    <div class="edit-form">
-
-                        <input @bind="editingRoom.Name" placeholder="Room Name" />
-                        <input @bind="editingRoom.Description" placeholder="Description" />
-                        <button @onclick="SubmitEdit">Save</button>
-                        <button @onclick="() => editingRoom = null">Cancel</button>
-                    </div>
+                    <div class="admin-row">
+                            <span><b>@room.Name</b> - @room.Description</span>
+                            <div class="admin-actions">
+                                <button class="icon-button" @onclick="() => EditRoom(room)">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="icon-button delete" @onclick="() => DeleteRoom(room.Id)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                 }
-
-            }
-
-            <h5>Create New Room</h5>
-
-            <div class="form-group">
-                <input @bind="newRoomName" placeholder="Room Name" class="form-input" />
-                <input @bind="newRoomDescription" placeholder="Description" class="form-input" />
-                <button @onclick="CreateRoom" class="form-button">Add Room</button>
+                </div>
             </div>
 
-            <ul>
-                @foreach (var room in rooms)
-                {
-                    <li>
-                        <b>@room.Name</b> - @room.Description
-                        <button @onclick="() => EditRoom(room)">Edit</button>
-                        <button @onclick="() => DeleteRoom(room.Id)" class="delete-button">X</button>
-                    </li>
-                }
-            </ul>
-
-            
-
-
-            <h3 class="section-title">Users</h3>
-            @if (users == null)
-            {
-                <p>Loading users...</p>
-            }
-            else
-            {
-                <ul class="admin-list">
+            <div class="admin-section">
+                <h3>Users</h3>
+                <div class="admin-table">
                     @foreach (var user in users)
-                    {
-                        <li class="admin-item">@user.Username - @user.Email</li>
-                    }
-                </ul>
-            }
+                {
+                    <div class="admin-row">
+                            <span>@user.Username - @user.Email</span>
+                        </div>
+                }
+                </div>
+            </div>
         </div>
-    }
+}
 </div>
 
 @code {
-    private List<RoomDto> rooms;
-    private List<UserDto> users;
-    private bool isAdmin; private string newRoomName;
-    private string newRoomDescription; 
-    private RoomDto? editingRoom;
+private List<RoomDto> rooms = new();
+private List<UserDto> users = new();
+private bool isAdmin;
+private string username = "";
+private string newRoomName = "";
+private string newRoomDescription = "";
 
-    private void EditRoom(RoomDto room)
+protected override async Task OnInitializedAsync()
+{
+    var token = await AuthService.GetTokenAsync();
+    var claims = AuthService.ParseToken(token);
+
+    isAdmin = claims?.IsAdmin ?? false;
+    username = claims?.Username ?? "";
+
+    if (!isAdmin) return;
+
+    rooms = await Http.GetFromJsonAsync<List<RoomDto>>("api/admin/rooms");
+    users = await Http.GetFromJsonAsync<List<UserDto>>("api/admin/users");
+}
+
+private void EditRoom(RoomDto room)
+{
+    newRoomName = room.Name;
+    newRoomDescription = room.Description;
+}
+
+private async Task CreateRoom()
+{
+    var roomData = new { Name = newRoomName, Description = newRoomDescription };
+    var token = await AuthService.GetTokenAsync();
+    Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+    var response = await Http.PostAsJsonAsync("api/admin/rooms", roomData);
+    if (response.IsSuccessStatusCode)
     {
-        editingRoom = new RoomDto
-            {
-                Id = room.Id,
-                Name = room.Name,
-                Description = room.Description
-            };
-    }
-
-    private async Task SubmitEdit()
-    {
-        var response = await Http.PutAsJsonAsync($"api/admin/rooms/{editingRoom!.Id}", editingRoom);
-
-        if (response.IsSuccessStatusCode)
-        {
-            var index = rooms.FindIndex(r => r.Id == editingRoom.Id);
-            if (index != -1)
-            {
-                rooms[index] = new RoomDto
-                    {
-                        Id = editingRoom.Id,
-                        Name = editingRoom.Name,
-                        Description = editingRoom.Description
-                    };
-            }
-            editingRoom = null;
-        }
-        else
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"PUT Error: {response.StatusCode} - {error}");
-        }
-    }
-
-    private async Task CreateRoom()
-    {
-        var roomData = new
-        {
-            Name = newRoomName,
-            Description = newRoomDescription
-        };
-
-        var token = await AuthService.GetTokenAsync();
-        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        var response = await Http.PostAsJsonAsync("api/admin/rooms", roomData);
-        if (response.IsSuccessStatusCode)
-        {
-            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, Guid>>();
-            Console.WriteLine($"Created room ID: {result["roomId"]}");
-            newRoomName = newRoomDescription = "";
-            rooms = await Http.GetFromJsonAsync<List<RoomDto>>("api/admin/rooms");
-        }
-    }
-
-    private async Task DeleteRoom(Guid roomId)
-    {
-        await Http.DeleteAsync($"api/admin/rooms/{roomId}");
+        newRoomName = newRoomDescription = "";
         rooms = await Http.GetFromJsonAsync<List<RoomDto>>("api/admin/rooms");
     }
+}
 
-    protected override async Task OnInitializedAsync()
-    {
-        var token = await AuthService.GetTokenAsync();
-
-        var handler = new JwtSecurityTokenHandler();
-        var jwt = handler.ReadJwtToken(token);
-        isAdmin = jwt.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Admin")
-           || jwt.Claims.Any(c => c.Type == "isAdmin" && c.Value == "True");
-
-        if (!isAdmin) return;
-
-        rooms = await Http.GetFromJsonAsync<List<RoomDto>>("api/admin/rooms");
-        users = await Http.GetFromJsonAsync<List<UserDto>>("api/admin/users");
-    }
+private async Task DeleteRoom(Guid id)
+{
+    await Http.DeleteAsync($"api/admin/rooms/{id}");
+    rooms = await Http.GetFromJsonAsync<List<RoomDto>>("api/admin/rooms");
+}
 }

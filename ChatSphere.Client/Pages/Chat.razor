@@ -1,9 +1,12 @@
 ﻿@page "/chathub"
+@using ChatSphere.Client.Shared
 @using ChatSphere.Domain.DTOs
 @inject IChatService ChatService
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+
+<PageTitle>Chat - ChatSphere</PageTitle>
 
 @if (ChatService == null || !ChatService.IsConnected)
 {
@@ -11,55 +14,61 @@
 }
 else
 {
-    <div class="chat-container">
-        <h3>ChatSphere</h3>
+    <div class="theme-button-container">
+        <ThemeToggle />
+    </div>
 
-        <!-- Room List -->
-        <div class="room-list">
-            <h4>Available Rooms</h4>
-            @foreach (var room in availableRooms)
-{
-    <div class="room-item" @onclick="() => SelectRoom(room.Id)">
-                    @room.Name (@room.Id)
-                </div>
-}
-        </div>
-
-        <!-- Join Room -->
-        <div class="room-selection">
-            <input placeholder="Selected Room ID..." @bind="roomId" readonly />
-            <button class="join-room-btn" @onclick="JoinRoom" disabled="@(!CanJoinRoom)">Join Room</button>
-        </div>
-
-        <!-- Users in Room -->
-        @if (currentRoom != Guid.Empty)
-{
-    <div class="user-list">
-                <h4>Users in Room</h4>
-                @foreach (var user in ChatService.UsersInCurrentRoom)
-    {
-        <div class="user-item">@user</div>
-    }
-            </div>
-
-    <!-- Chat messages -->
-    <div class="chat-messages">
-                @foreach (var msg in ChatService.ChatMessages)
-    {
-        <div class="message @(msg.IsMine ? "mine" : "theirs")">
-                        <span class="sender">@msg.SenderUsername</span>
-                        <p>@msg.Content</p>
+    <div class="chat-wrapper">
+        <!-- Sidebar: Room list & users -->
+        <div class="sidebar">
+            <h3>Rooms</h3>
+            <div class="room-list">
+                @foreach (var room in availableRooms)
+            {
+                <div class="room-item" @onclick="() => SelectRoom(room.Id)">
+                        @room.Name
                     </div>
-    }
+            }
             </div>
 
-    
-                                            <!-- Message Input -->
-        <div class="chat-input">
+            <div class="room-selection">
+                <input placeholder="Selected Room ID..." @bind="roomId" readonly />
+                <button class="join-btn" @onclick="JoinRoom" disabled="@(!CanJoinRoom)">Join</button>
+            </div>
+
+            @if (currentRoom != Guid.Empty)
+        {
+            <h4>Users in Room</h4>
+            <div class="user-list">
+                    @foreach (var user in ChatService.UsersInCurrentRoom)
+                {
+                    <div class="user-item">@user</div>
+                }
+                </div>
+        }
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <h3>ChatSphere</h3>
+            </div>
+
+            <div class="chat-messages">
+                @foreach (var msg in ChatService.ChatMessages)
+            {
+                <div class="message @(msg.IsMine ? "mine" : "theirs")">
+                        <div class="sender">@msg.SenderUsername</div>
+                        <div class="content">@msg.Content</div>
+                    </div>
+            }
+            </div>
+
+            <div class="chat-input">
                 <input @bind="message" placeholder="Type a message..." />
                 <button @onclick="SendMessage">Send</button>
             </div>
-}
+        </div>
     </div>
 }
 
@@ -73,42 +82,42 @@ private bool CanJoinRoom => roomId != Guid.Empty && availableRooms.Any(r => r.Id
 
 protected override async Task OnInitializedAsync()
 {
-var token = await AuthService.GetTokenAsync();
-if (string.IsNullOrWhiteSpace(token))
-{
-Navigation.NavigateTo("/login");
-return;
+    var token = await AuthService.GetTokenAsync();
+    if (string.IsNullOrWhiteSpace(token))
+    {
+        Navigation.NavigateTo("/login");
+
+        return;
+    }
+
+    ChatService.SetToken(token);
+    ChatService.OnMessageReceived += StateHasChanged;
+    ChatService.OnUsersUpdated += StateHasChanged;
+
+    await ChatService.ConnectAsync();
+    availableRooms = await ChatService.GetAvailableRoomsAsync();
 }
-
-ChatService.SetToken(token);
-ChatService.OnMessageReceived += StateHasChanged;
-ChatService.OnUsersUpdated += StateHasChanged;
-
-await ChatService.ConnectAsync();
-availableRooms = await ChatService.GetAvailableRoomsAsync();
-}
-
 
 private void SelectRoom(Guid id)
 {
-roomId = id;
+    roomId = id;
 }
 
 private async Task JoinRoom()
 {
-if (!CanJoinRoom) return;
+    if (!CanJoinRoom) return;
 
-await ChatService.JoinRoomAsync(roomId);
-currentRoom = roomId;
-await JS.InvokeVoidAsync("showToastr", $"✅ Joined Room: {roomId}");
+    await ChatService.JoinRoomAsync(roomId);
+    currentRoom = roomId;
+    await JS.InvokeVoidAsync("showToastr", $"✅ Joined Room: {roomId}");
 }
 
 private async Task SendMessage()
 {
-if (!string.IsNullOrWhiteSpace(message) && currentRoom != Guid.Empty)
-{
-await ChatService.SendMessageAsync(currentRoom, "Me", message);
-message = "";
-}
+    if (!string.IsNullOrWhiteSpace(message) && currentRoom != Guid.Empty)
+    {
+        await ChatService.SendMessageAsync(currentRoom, "Me", message);
+        message = "";
+    }
 }
 }

@@ -1,51 +1,58 @@
 ﻿@page "/register"
+@using ChatSphere.Client.Shared
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
 <PageTitle>Register - ChatSphere</PageTitle>
+    <div class="theme-button-container">
+        <ThemeToggle />
+    </div>
+<div class="register-container">
+    <div class="register-card">
+        <h2>Create Account 📝</h2>
+        <p>Join ChatSphere and start chatting!</p>
 
-<div class="form-wrapper">
-    <div class="form-box">
-        <h2 class="form-title">Join ChatSphere</h2>
-        <p class="form-subtitle">Create your free account</p>
+        <input @bind="Username" placeholder="Username" class="input" />
+        <input @bind="Email" placeholder="Email" type="email" class="input" />
+        <input @bind="Password" placeholder="Password" type="password" class="input" />
+        <input @bind="ConfirmPassword" placeholder="Confirm Password" type="password" class="input" />
 
-        <input @bind="Username" placeholder="Username" />
-        <input @bind="Email" placeholder="Email" />
-        <input @bind="Password" type="password" placeholder="Password" />
-        <input @bind="ConfirmPassword" type="password" placeholder="Confirm Password" />
-        <button @onclick="HandleRegister" class="form-button">Register</button>
+        <button class="button" @onclick="HandleRegister">Register</button>
 
-        <p class="error-message">@ErrorMessage</p>
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <p class="error">@ErrorMessage</p>
+    }
 
-        <div class="link">
+        <p class="login-link">
             Already have an account? <a href="/login">Login here</a>
-        </div>
+        </p>
     </div>
 </div>
 
 @code {
-    private string Username { get; set; } = "";
-    private string Email { get; set; } = "";
-    private string Password { get; set; } = "";
-    private string ConfirmPassword { get; set; } = "";
-    private string ErrorMessage { get; set; } = "";
+private string Username { get; set; } = "";
+private string Email { get; set; } = "";
+private string Password { get; set; } = "";
+private string ConfirmPassword { get; set; } = "";
+private string ErrorMessage { get; set; } = "";
 
-    private async Task HandleRegister()
+private async Task HandleRegister()
+{
+    if (Password != ConfirmPassword)
     {
-        if (Password != ConfirmPassword)
-        {
-            ErrorMessage = "Passwords do not match.";
-            return;
-        }
-
-        var success = await AuthService.RegisterAsync(Username, Email, Password);
-        if (success)
-        {
-            Navigation.NavigateTo("/login");
-        }
-        else
-        {
-            ErrorMessage = "Registration failed.";
-        }
+        ErrorMessage = "Passwords do not match.";
+        return;
     }
+
+    var success = await AuthService.RegisterAsync(Username, Email, Password);
+    if (success)
+    {
+        Navigation.NavigateTo("/login");
+    }
+    else
+    {
+        ErrorMessage = "Registration failed.";
+    }
+}
 }

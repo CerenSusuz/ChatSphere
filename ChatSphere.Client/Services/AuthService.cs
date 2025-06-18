@@ -1,4 +1,7 @@
-﻿using System.Net.Http.Json;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Json;
+using System.Security.Claims;
+using ChatSphere.Domain.DTOs;
 using Microsoft.JSInterop;
 
 namespace ChatSphere.Client.Services;
@@ -67,4 +70,25 @@ public class AuthService : IAuthService
     {
         await _js.InvokeVoidAsync("localStorage.removeItem", "jwtToken");
     }
+
+    public JwtUserInfo ParseToken(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+
+        var username = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+        var email = jwt.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+        var isAdmin = jwt.Claims.Any(c =>
+            (c.Type == ClaimTypes.Role && c.Value == "Admin") ||
+            (c.Type == "isAdmin" && c.Value.Equals("true", StringComparison.OrdinalIgnoreCase)));
+
+        return new JwtUserInfo
+        {
+            Username = username ?? "",
+            Email = email ?? "",
+            IsAdmin = isAdmin
+        };
+    }
+
 }

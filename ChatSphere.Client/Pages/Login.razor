@@ -1,41 +1,53 @@
 ﻿@page "/login"
+@using ChatSphere.Client.Shared
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
 <PageTitle>Login - ChatSphere</PageTitle>
+    <div class="theme-button-container">
+        <ThemeToggle />
+    </div>
+<div class="login-container">
+    <div class="login-card">
+        <h2>Welcome Back 👋</h2>
+        <p>Please login to continue chatting</p>
 
-<div class="form-wrapper">
-    <div class="form-box">
-        <h2 class="form-title">Login to ChatSphere</h2>
-        <p class="form-subtitle">Access your account</p>
+        <input @bind="Email" placeholder="Email" type="email" class="input" />
+        <input @bind="Password" placeholder="Password" type="password" class="input" />
 
-        <input @bind="Email" placeholder="Email" />
-        <input @bind="Password" type="password" placeholder="Password" />
-        <button @onclick="HandleLogin" class="form-button">Login</button>
+        <button class="button" @onclick="HandleLogin">Login</button>
 
-        <p class="error-message">@ErrorMessage</p>
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <p class="error">@ErrorMessage</p>
+    }
 
-        <div class="link">
+        <p class="register-link">
             Don't have an account? <a href="/register">Register here</a>
-        </div>
+        </p>
     </div>
 </div>
 
 @code {
-    private string Email { get; set; } = "";
-    private string Password { get; set; } = "";
-    private string ErrorMessage { get; set; } = "";
+private string Email { get; set; } = "";
+private string Password { get; set; } = "";
+private string ErrorMessage { get; set; } = "";
 
-    private async Task HandleLogin()
+private async Task HandleLogin()
+{
+    var token = await AuthService.LoginAsync(Email, Password);
+    if (!string.IsNullOrWhiteSpace(token))
     {
-        var token = await AuthService.LoginAsync(Email, Password);
-        if (!string.IsNullOrWhiteSpace(token))
-        {
-            Navigation.NavigateTo("/");
-        }
-        else
-        {
-            ErrorMessage = "Invalid email or password.";
-        }
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+        var isAdmin = jwt.Claims.Any(c => c.Type == "role" && c.Value == "Admin")
+                   || jwt.Claims.Any(c => c.Type == "isAdmin" && c.Value == "True");
+
+        Navigation.NavigateTo(isAdmin ? "/admin" : "/chathub");
     }
+    else
+    {
+        ErrorMessage = "Invalid email or password.";
+    }
+}
 }
