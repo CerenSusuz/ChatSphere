@@ -43,7 +43,8 @@ private async Task HandleLogin()
         var isAdmin = jwt.Claims.Any(c => c.Type == "role" && c.Value == "Admin")
                    || jwt.Claims.Any(c => c.Type == "isAdmin" && c.Value == "True");
 
-        Navigation.NavigateTo(isAdmin ? "/admin" : "/chathub");
+            Navigation.NavigateTo("/welcome", true);
+
     }
     else
     {

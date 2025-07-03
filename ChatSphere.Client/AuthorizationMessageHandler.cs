@@ -14,7 +14,7 @@ public class AuthorizationMessageHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "jwtToken");
+        var token = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "jwtToken");
 
         if (!string.IsNullOrWhiteSpace(token))
         {

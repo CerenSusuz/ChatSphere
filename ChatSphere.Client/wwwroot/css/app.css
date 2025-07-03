@@ -55,25 +55,25 @@ button, .button {
     transition: background-color 0.3s ease;
 }
 
-button:hover, .button:hover {
-    background-color: var(--primary-dark);
- }
+    button:hover, .button:hover {
+        background-color: var(--primary-dark);
+    }
 
 .button-secondary {
     background-color: var(--secondary);
 }
 
-.button-secondary:hover {
-    background-color: var(--secondary-dark);
-}
+    .button-secondary:hover {
+        background-color: var(--secondary-dark);
+    }
 
 .button-danger {
     background-color: var(--danger);
 }
 
-.button-danger:hover {
-    background-color: var(--danger-dark);
-}
+    .button-danger:hover {
+        background-color: var(--danger-dark);
+    }
 
 input, textarea, .input {
     width: 100%;
@@ -86,10 +86,10 @@ input, textarea, .input {
     color: var(--text);
 }
 
-input:focus, textarea:focus, .input:focus {
-    border-color: var(--secondary);
-    outline: none;
-}
+    input:focus, textarea:focus, .input:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
 
 .login-container, .register-container {
     display: flex;
@@ -110,24 +110,24 @@ input:focus, textarea:focus, .input:focus {
     background-color: var(--card-bg);
 }
 
-.login-card h2, .register-card h2 {
-    color: var(--primary);
-    margin-bottom: 10px;
-}
+    .login-card h2, .register-card h2 {
+        color: var(--primary);
+        margin-bottom: 10px;
+    }
 
-.login-card p, .register-card p {
-    color: var(--text);
-    margin-bottom: 20px;
-}
+    .login-card p, .register-card p {
+        color: var(--text);
+        margin-bottom: 20px;
+    }
 
 .login-link a, .register-link a {
     color: var(--primary);
     text-decoration: none;
 }
 
-.login-link a:hover, .register-link a:hover {
-    text-decoration: underline;
-}
+    .login-link a:hover, .register-link a:hover {
+        text-decoration: underline;
+    }
 
 .error {
     color: #e53935;
@@ -195,9 +195,10 @@ input:focus, textarea:focus, .input:focus {
     transition: transform 0.2s;
 }
 
-.theme-toggle:hover {
-    transform: scale(1.2);
-}
+    .theme-toggle:hover {
+        transform: scale(1.2);
+    }
+
 .landing-section {
     display: flex;
     flex-direction: column;
@@ -214,7 +215,7 @@ input:focus, textarea:focus, .input:focus {
     margin-bottom: 10px;
 }
 
- .landing-title span {
+    .landing-title span {
         color: var(--primary);
     }
 
@@ -231,22 +232,22 @@ input:focus, textarea:focus, .input:focus {
     justify-content: center;
 }
 
-.landing-buttons .button {
-    min-width: 120px;
-    padding: 12px 20px;
-    font-size: 1rem;
-}
+    .landing-buttons .button {
+        min-width: 120px;
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
 
 @media (min-width: 600px) {
     .landing-buttons {
         flex-direction: row;
         justify-content: center;
     }
-    
-    .landing-buttons .button {
-        width: auto;
-        min-width: 140px;
-    }
+
+        .landing-buttons .button {
+            width: auto;
+            min-width: 140px;
+        }
 }
 
 .theme-button-container {
@@ -266,6 +267,7 @@ input:focus, textarea:focus, .input:focus {
         transform: translateY(0);
     }
 }
+
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -334,3 +336,16 @@ input:focus, textarea:focus, .input:focus {
     .icon-button.delete {
         background-color: var(--danger);
     }
+
+.logout-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+}
+
+.welcome-text {
+    font-weight: bold;
+    color: var(--text);
+}

@@ -1,0 +1,66 @@
+﻿@page "/welcome"
+@using ChatSphere.Client.Shared
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Welcome - ChatSphere</PageTitle>
+
+<div class="theme-button-container">
+    <ThemeToggle />
+</div>
+
+<div class="landing-section">
+    @if (isLoggedIn)
+    {
+        <h1 class="landing-title">Welcome back, <span>@username</span> 👋</h1>
+        <p class="landing-subtitle">Let’s get you back to chatting.</p>
+        <div class="landing-buttons">
+            @if (isAdmin)
+            {
+                <button class="button-primary" @onclick="NavigateToAdminPage">Admin Panel</button>
+            }
+            else
+            {
+                <button class="button-primary" @onclick="NavigateToChathubPage">Go to Chat</button>
+            }
+
+            <button class="button-danger" @onclick="Logout">Logout</button>
+        </div>
+    }
+    else
+    {
+        <p>Redirecting to login...</p>
+    }
+</div>
+
+@code {
+    private string username = "";
+    private bool isLoggedIn = false;
+    private bool isAdmin = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await AuthService.GetTokenAsync();
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            var info = AuthService.ParseToken(token);
+            username = info.Username;
+            isAdmin = info.IsAdmin;
+            isLoggedIn = !string.IsNullOrWhiteSpace(username);
+        }
+
+        if (!isLoggedIn)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/");
+    }
+
+       private void NavigateToAdminPage() => Navigation.NavigateTo("/admin");
+    private void NavigateToChathubPage() => Navigation.NavigateTo("/chathub");
+}

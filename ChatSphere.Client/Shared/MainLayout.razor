@@ -1,21 +1,22 @@
 ﻿@page "/"
-
 @inject NavigationManager Navigation
 
 <PageTitle>ChatSphere</PageTitle>
+
 <div class="theme-button-container">
     <ThemeToggle />
 </div>
+
 <div class="landing-section">
     <h1 class="landing-title">Welcome to <span>ChatSphere</span></h1>
     <p class="landing-subtitle">Real-time chat with modern features 🌐</p>
     <div class="landing-buttons">
-        <button class="button-orange" @onclick="NavigateToLoginPage">Login</button>
-        <button class="button-blue" @onclick="NavigateToRegisterPage">Register</button>
+        <button class="button-secondary" @onclick="NavigateToLoginPage">Login</button>
+        <button class="button-primary" @onclick="NavigateToRegisterPage">Register</button>
     </div>
 </div>
 
 @code {
-private void NavigateToLoginPage() => Navigation.NavigateTo("/login");
-private void NavigateToRegisterPage() => Navigation.NavigateTo("/register");
+    private void NavigateToLoginPage() => Navigation.NavigateTo("/login");
+    private void NavigateToRegisterPage() => Navigation.NavigateTo("/register");
 }
